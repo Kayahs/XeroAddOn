@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <? if (hasAccess) { ?>
+      <form id="reportForm">
+        <label>Choose which Report to load:</label>
+        <select name="reports" id="reports" required>
+          <option value="" selected disabled>Choose a Report</option>
+          <option value="balanceSheet">Balance Sheet</option>
+          <option value="profitLoss">Profit & Loss</option>
+          <option value="accountsPayable">Accounts Payable</option>
+          <option value="accountsReceivable">Accounts Receivable</option>
+        </select>
+        <br>
+        Balance Sheet Options
+        <br>
+        <input
+          type="date"
+          id="balanceSheet-date"
+          name="balanceSheet-date"
+          value="<?= currentDate ?>"
+        />
+        <br>
+        <input 
+          type="number" 
+          name="balanceSheet-periods" 
+          id="balanceSheet-periods"
+          value="1"
+          min="1"
+          max="11"
+        />
+        <br>
+        <select name="balanceSheet-timeframe" id="balanceSheet-timeframe">
+          <option value="MONTH">Month</option>
+          <option value="QUARTER">Quarter</option>
+          <option value="YEAR" selected>Year</option>
+        </select>
+        <br>
+        Profit and Loss Options
+        <br>
+        <input
+          type="date"
+          id="profitLoss-fromDate"
+          name="profitLoss-fromDate"
+          value="<?= currentDate ?>"
+        />
+        <br>
+        <input
+          type="date"
+          id="profitLoss-toDate"
+          name="profitLoss-toDate"
+          value="<?= currentDate ?>"
+        />
+        <br>
+        <input 
+          type="number" 
+          name="profitLoss-periods" 
+          id="profitLoss-periods"
+          value="1"
+          min="1"
+          max="11"
+        />
+        <br>
+        <select name="profitLoss-timeframe" id="profitLoss-timeframe">
+          <option value="MONTH">Month</option>
+          <option value="QUARTER">Quarter</option>
+          <option value="YEAR" selected>Year</option>
+        </select>
+        <br>
+        <input type="submit" value="Submit">
+      </form>
+    <? } else { ?>
+      <a href="<?= authorizationUrl ?>" target="_blank">Authorize</a>
+    <? } ?>
+    <input type="button" value="Reset" id="resetButton" />
+    <input type="button" value="Close" onclick="google.script.host.close()" />
+    <script>
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const report = document.getElementById('reports').value;
+      const dateElement = document.getElementById(`${report}-date`) || "";
+      const periodElement = document.getElementById(`${report}-periods`) || "";
+      const timeframeElement = document.getElementById(`${report}-timeframe`) || "";
+      const fromDateElement = document.getElementById(`${report}-fromDate`) || "";
+      const toDateElement = document.getElementById(`${report}-toDate`) || "";
+
+      const formData = {
+        report: report,
+        date: dateElement.value || "",
+        periods: periodElement.value || "",
+        timeframe: timeframeElement.value || "",
+        fromDate: fromDateElement.value || "",
+        toDate: toDateElement.value || ""
+      };
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          alert('Report Loaded');
+        })
+        .withFailureHandler(function(error) {
+          alert('Error: ' + error.message);
+        })
+        .loadReportFromForm(formData);
+    });
+    document.getElementById('resetButton').addEventListener('click', function(e) {
+      e.preventDefault();
+
+      google.script.run.reset();
+    });
+  </script>
+  </body>
+</html>
